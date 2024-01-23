@@ -1,3 +1,6 @@
+import base64
+import io
+from PIL import Image 
 import PySimpleGUI as sg
 
 from classes.Accounts import Accounts
@@ -9,41 +12,45 @@ from .Constants import TITLE
 class Layouts:
     """
     Manages layouts.
-
-    * Stores layouts (name: data) in `self.layouts`.
-    * `get_layout`: Retrieve layout by name (returns None if not found).
-    * `set_layout`: Store new or update existing layouts.
     """
 
     def auth_layout(login) -> list:
+        
         return [
             [sg.Text(login)],
             [sg.HorizontalSeparator()],
-            [sg.Text("Username", size=(15, 1)), sg.InputText(key="-USERNAME-")],
+            [sg.Text("Username", size=(15, 1)), sg.InputText(key="username")],
             [
                 sg.Text("Password", size=(15, 1)),
-                sg.InputText(key="-PASSWORD-", password_char="*"),
+                sg.InputText(key="password", password_char="*"),
             ],
-            [sg.Submit(key=f"-{login.upper()}-")],
+            [
+                sg.Text("Confirm Password", size=(15, 1), visible=True if login.upper()=='RESET' else False),
+                sg.InputText(key="confirm_password", password_char="*", visible=True if login.upper()=='RESET' else False),
+            ],
+            [sg.B('Reset Password',key=f"-GRESET-", visible=True if login.upper()=='LOGIN' else False), sg.Submit(key=f"-{login.upper()}-")],
             [[sg.Text("...", size=(30, 1), key="-MESSAGE-", text_color="red")]],
         ]
 
     def ask_layout(logged_in: bool = False) -> list:
         if logged_in:
             return [
-                [sg.Button(f"Continue as {Accounts.username()}"), sg.Button("Logout")]
+                [sg.Button(f"Continue as {Accounts.username()}")]
             ]
 
         else:
             return [[sg.Button("Login"), sg.Button("Register")]]
 
     def search_layout() -> list:
+        suggestions = Accounts.searches()
         book_list_col = [
             [sg.T("Book Search")],
             [
                 sg.InputText(size=(25, 1), enable_events=True, key="-Search-"),
-                sg.Button("Search"),
+                sg.Submit(key=f"Search"),
             ],
+            [sg.Listbox(suggestions, size=(25, 4), enable_events=True, key='-List-'),],
+
             [
                 sg.Listbox(
                     values=[], enable_events=True, size=(60, 10), key="-BOOK LIST-"
@@ -120,14 +127,25 @@ class Layouts:
         return search_layout
 
     def main_layout() -> list:
-        borrowed = Accounts.borrowed(["image_data"])
-        image_holders = [sg.Image(data=data, size=(100, 125)) for data in borrowed]
+        from project import decode,log
+        borrowed_list = Accounts.borrowed(["a.uid", "a.image_data"])[0]
+
+        place_data = Image.open(r"./assets/image.png")
+        byte_data = io.BytesIO()
+        place_data.save(byte_data, format='PNG')
+        byte_data = byte_data.getvalue()
+        base64_data = base64.b64encode(byte_data)
+
+        log('Layout:main_layout.borrowed_list',borrowed_list)
+        image_holders = [sg.Button('', image_data=(data if data is not None else base64_data), key='book_' + uid) for uid, data in borrowed_list]
+        if len(image_holders) < 3:
+            image_holders += [sg.Button('', image_source=f'./assets/{i}.png') for i in range(len(image_holders) + 1 , 4)]
         users = Database.get(["username", "checked_out", "purchased"], "users")
         balance = Database.get(
             ["balance"], "users", f"username = '{Accounts.username()}'"
         )[0][0]
         headrow_members = ["Name", "Checked Out", "Purchased"]
-        rows_members = [[t[0], t[1], t[2]] for t in users]
+        rows_members = [[name, check_out, purchased] for name,check_out,purchased in users]
         member_list = [
             sg.Table(
                 values=rows_members,
@@ -151,7 +169,8 @@ class Layouts:
             [f"b.username = '{Accounts.username()}'", "b.type = 'PURCHASED'"],
         )
         headrow_books = ["Name", "Author", "Price"]
-        rows_books = [[t[0], t[1], t[2]] for t in purchase_book]
+        
+        rows_books = [[name, decode(author) , price] for name,author,price in purchase_book]
         purchase_list = [
             sg.Table(
                 values=rows_books,
@@ -169,14 +188,14 @@ class Layouts:
         ]
 
         borrow_book = Database.join_and_get(
-            ["a.title", "a.author", "a.uid"],
+            ["a.title", "a.author", "b.date"],
             "library",
             "books",
             f"a.uid = b.uid",
             [f"b.username = '{Accounts.username()}'", "b.type = 'BORROWED'"],
         )
-        headrow_books = ["Name", "Author", "Return"]
-        rows_books = [[t[0], t[1], t[2]] for t in borrow_book]
+        headrow_books = ["Name", "Author"]
+        rows_books = [[name, decode(author) , date] for name, author, date in borrow_book]
         borrow_list = [
             sg.Table(
                 values=rows_books,
@@ -203,9 +222,7 @@ class Layouts:
                         [sg.T("TRANSACTIONS", size=(25, 1))],
                         [sg.In(size=(25, 1), key="-ADD_AMOUNT-")],
                         [
-                            sg.B(
-                                "Add Money",
-                            )
+                            sg.Submit('Add Money', key="Add Money")
                         ],
                         [
                             sg.T("BALANCE:", size=(8, 1)),
@@ -220,6 +237,9 @@ class Layouts:
                             ),
                             sg.B(
                                 "See Available Books",
+                            ),
+                            sg.B(
+                                "Reset Password",
                             ),
                         ],
                         [

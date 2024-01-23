@@ -9,9 +9,20 @@ database_structure = {
         'purchased': 'INT DEFAULT 0',
         'balance': 'INT DEFAULT 0',
     },
-    "searches": {"username": "TEXT", "search": "TEXT UNIQUE"},
-    "books": {"uid": "TEXT", "type": "TEXT", "username": "TEXT"},
-    "config": {"id": "TEXT UNIQUE",'value':'TEXT'},
+    "searches": {
+        "username": "TEXT",
+        "search": "TEXT UNIQUE"
+    },
+    "books": {
+        "uid": "TEXT", 
+        "type": "TEXT", 
+        "username": "TEXT",
+        "date": "TEXT"
+    },
+    "config": {
+        "id": "TEXT UNIQUE",
+        "value": "TEXT"
+    },
     "library": {
         "title": "TEXT",
         "image_data": "BLOB",
@@ -57,7 +68,7 @@ class Database:
         Database.insert('config',{
             'id':'resume',
             'value':False
-        })
+        })   
         print("Database created successfully!")
 
     def connect() -> tuple:
@@ -93,13 +104,14 @@ class Database:
         try:
             _, cursor = Database.connect()
             cursor.execute(query)
-            return cursor.fetchall()
+            fetched_data = cursor.fetchall()
+            return fetched_data
 
         except sqlite3.Error as e:
             print(f"Error retrieving data: {e}")
             return []
 
-
+    
     def insert(table: str, data: dict) -> bool:
         """Inserts a key-value pair into a table.
 
@@ -121,8 +133,32 @@ class Database:
             return True
 
         except sqlite3.Error as e:
-            print(f"Error inserting data into table '{table}': {e}")
+            print('Database.insert', f"Error inserting data into table '{table}': {e}")
             return False
+        
+    def remove(table: str, conditions: dict) -> bool:
+        """Removes rows from a table that match the specified conditions.
+
+        Args:
+            table: The name of the table to remove from.
+            conditions: Keys are column names, values are the values to match.
+
+        Returns:
+            True if the removal was successful, False otherwise.
+        """
+
+        try:
+            conn, cursor = Database.connect()
+            where_clause = " AND ".join([f"{column} = ?" for column in conditions])
+            query = f"DELETE FROM {table} WHERE {where_clause}"
+            cursor.execute(query, list(conditions.values()))
+            Database.save(conn, cursor)
+            return True
+
+        except sqlite3.Error as e:
+            print(f"Error removing data from table '{table}': {e}")
+            return False
+    
 
     def get(columns: list, table: str, condition: str = "") -> list:
         """Selects data in given columns from a table where the condition matches."""
