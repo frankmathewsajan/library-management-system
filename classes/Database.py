@@ -5,24 +5,13 @@ database_structure = {
         "username": "TEXT UNIQUE",
         "password": "BLOB",
         "auth": "BOOLEAN",
-        'checked_out': 'INT DEFAULT 0',
-        'purchased': 'INT DEFAULT 0',
-        'balance': 'INT DEFAULT 0',
+        "checked_out": "INT DEFAULT 0",
+        "purchased": "INT DEFAULT 0",
+        "balance": "INT DEFAULT 0",
     },
-    "searches": {
-        "username": "TEXT",
-        "search": "TEXT UNIQUE"
-    },
-    "books": {
-        "uid": "TEXT", 
-        "type": "TEXT", 
-        "username": "TEXT",
-        "date": "TEXT"
-    },
-    "config": {
-        "id": "TEXT UNIQUE",
-        "value": "TEXT"
-    },
+    "searches": {"username": "TEXT", "search": "TEXT UNIQUE"},
+    "books": {"uid": "TEXT", "type": "TEXT", "username": "TEXT", "date": "TEXT"},
+    "config": {"id": "TEXT UNIQUE", "value": "TEXT"},
     "library": {
         "title": "TEXT",
         "image_data": "BLOB",
@@ -43,13 +32,13 @@ database_structure = {
 class Database:
     def drop() -> None:
         import os
-        file_path = './databases/sqlite.db'
+
+        file_path = "./databases/sqlite.db"
         if os.path.exists(file_path):
             os.remove(file_path)
-            print(f'{file_path} has been deleted.')
+            print(f"{file_path} has been deleted.")
         else:
-            print(f'No such file: {file_path}')      
-
+            print(f"No such file: {file_path}")
 
     def init() -> None:
 
@@ -65,10 +54,7 @@ class Database:
             cursor.execute(query)
 
         Database.save(conn, cursor)
-        Database.insert('config',{
-            'id':'resume',
-            'value':False
-        })   
+        Database.insert("config", {"id": "resume", "value": False})
         print("Database created successfully!")
 
     def connect() -> tuple:
@@ -87,9 +73,11 @@ class Database:
         cursor.close()
         sqliteConnection.commit()
 
-    def join_and_get(columns:list, table_a: str, table_b: str, on: str, conditions: list) -> list:
+    def join_and_get(
+        columns: list, table_a: str, table_b: str, on: str, conditions: list
+    ) -> list:
         """
-        Connects table1 and table2 on the specified condition and 
+        Connects table1 and table2 on the specified condition and
         returns results based on additional conditions.
         Write condition on a. or b.
         """
@@ -111,7 +99,6 @@ class Database:
             print(f"Error retrieving data: {e}")
             return []
 
-    
     def insert(table: str, data: dict) -> bool:
         """Inserts a key-value pair into a table.
 
@@ -133,9 +120,9 @@ class Database:
             return True
 
         except sqlite3.Error as e:
-            print('Database.insert', f"Error inserting data into table '{table}': {e}")
+            print("Database.insert", f"Error inserting data into table '{table}': {e}")
             return False
-        
+
     def remove(table: str, conditions: dict) -> bool:
         """Removes rows from a table that match the specified conditions.
 
@@ -158,7 +145,6 @@ class Database:
         except sqlite3.Error as e:
             print(f"Error removing data from table '{table}': {e}")
             return False
-    
 
     def get(columns: list, table: str, condition: str = "") -> list:
         """Selects data in given columns from a table where the condition matches."""
