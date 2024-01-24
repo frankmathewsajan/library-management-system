@@ -6,8 +6,6 @@ import PySimpleGUI as sg
 from classes.Accounts import Accounts
 from classes.Database import Database
 
-from .Constants import TITLE
-
 
 class Layouts:
     """

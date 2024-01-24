@@ -4,7 +4,7 @@ import sys
 import PySimpleGUI as sg
 import bcrypt
 import re
-from classes.Constants import (
+from classes import (
     CHECKOUT_LIMIT,
     DUE_DAYS,
     FINE,
@@ -199,7 +199,7 @@ class Accounts:
         if Accounts.block(2) and balance > 0:
             Accounts.block(1)
             sg.popup_ok(
-                "Your bebt is paid, so all transactions has been unblocked",
+                "Your debt is paid, so all transactions has been unblocked",
                 title="Transactions Unblocked",
             )
         return balance
@@ -266,7 +266,7 @@ class Accounts:
                         title="SYSTEM Restricted",
                         text_color="red",
                     )
-            Accounts.block()
+                Accounts.block()
             DB.remove("books", {"uid": uid, "type": "BORROWED", "username": username})
             count = (
                 int(DB.get(["checked_out"], "users", f"username = '{username}'")[0][0])

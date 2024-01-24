@@ -10,7 +10,7 @@ import random
 
 from classes.Layouts import Layouts
 from classes.Accounts import Accounts
-from classes.Constants import MAX_QUERIES, TITLE, THEME
+from classes import MAX_QUERIES, TITLE, THEME
 from classes.Library import Library
 
 sg.theme(THEME)
@@ -204,7 +204,6 @@ def handle_search(event, values, main_window, get_offline_data=False):
 
 
 def handle_transaction(_, values, main_window):
-    print(80)
     try:
         amount = int(values["-ADD_AMOUNT-"].strip())
     except ValueError:
