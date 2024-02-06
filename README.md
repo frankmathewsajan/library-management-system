@@ -9,7 +9,13 @@
 6. [Project Reflection](#project-reflection)
 
 ## Description
-The Library Management Model is a user-friendly GUI-based application designed for efficiently managing a library. The project utilizes a Python-based frontend framework called PySimpleGUI and relies on the Python programming language for implementation. The database is managed using SQLite3.
+GUI based Library Management System (LMS) to handle the primary housekeeping functions of a library
+
+## Functionalities and Features:
+1. **Cataloging:** It will provide a searchable catalog of all books in the library.
+2. **Borrowing and Returning:** It will manage the process of lending books to members and receiving them back.
+3. **Overdue Books:** It will track overdue books and possibly impose fines.
+4. **Member Management:** It will manage member transactions, renewals, and account modifications.
 
 ## Installation
 Before running the script, make sure to install the required Python libraries by executing the following commands in your terminal:
@@ -137,9 +143,18 @@ The entire source code is hosted on GitHub.
 
 [Frank Mathew Sajan - Github](https://github.com/frankmathewsajan/library-management-system)
 
-**Front-End:** PySimpleGUI, Python
+**Front-End:** 
+- PySimpleGUI
+- Python
 
-**Database:** SQLite3
+**Database:** 
+- SQLite3
+
+**Skills:** 
+- Database Management
+- User Interface Design
+- Data Structures
+- Object Oriented Programming
 
 ## Project Structure
 
