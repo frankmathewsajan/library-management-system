@@ -8,6 +8,8 @@
 5. [File Structure](#project-structure) 
 6. [Project Reflection](#project-reflection)
 
+#### Video Demo:  https://www.youtube.com/watch?v=Nk-EJc-3QQI
+
 ## Description
 GUI based Library Management System (LMS) to handle the primary housekeeping functions of a library
 
