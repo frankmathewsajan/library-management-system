@@ -8,14 +8,6 @@ import io
 import socket
 import random
 
-from classes.Layouts import Layouts
-from classes.Accounts import Accounts
-from classes import MAX_QUERIES, TITLE, THEME
-from classes.Library import Library
-
-sg.theme(THEME)
-
-windows = []
 
 
 def main():
@@ -123,6 +115,7 @@ def handle_search(event, values, main_window, get_offline_data=False):
         finalize=True,
         margins=(150, 75),
     )
+    global windows
     windows.append(search_window)
     while True:
         event, values = search_window.read()
@@ -385,12 +378,29 @@ def get_auth_layout_name(auth: bool = False) -> str | None:
             return event
 
 
+
 def decode(text):
-    return base64.b64decode(text).decode() if text else None
+    if isinstance(text, (str, int, float)) and not isinstance(text, bool):
+        try:
+            return base64.b64decode(str(text)).decode()
+        except Exception as e:
+            print(f"Error decoding: {e}")
+    else:
+        return None
+    return None
 
-
+    
 def encode(text):
-    return base64.b64encode(text.encode()).decode() if text else None
+    if isinstance(text, (str, int, float)) and not isinstance(text, bool):
+        try:
+            return base64.b64encode(str(text).encode()).decode()
+        except Exception as e:
+            print(f"Error encoding: {e}")
+    else:
+        return None
+    return None
+
+
 
 
 def log(fn, text) -> bool:
@@ -400,9 +410,18 @@ def log(fn, text) -> bool:
             print(t)
             log.write(t)
         return True
-    except Exception as e:
+    except Exception as error:
         return False
 
 
 if __name__ == "__main__":
+
+    from classes.Layouts import Layouts
+    from classes.Accounts import Accounts
+    from classes import MAX_QUERIES, TITLE, THEME
+    from classes.Library import Library
+
+    sg.theme(THEME)
+
+    windows = []
     main()
